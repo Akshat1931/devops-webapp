@@ -13,11 +13,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Show Files
-        run: ls -la
-
       - name: Simulate Build
         run: echo "Build successful!"
 
-      - name: Finish
-        run: echo "CI completed successfully."
+      - name: Send Slack Success Notification
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"✅ Build Successful for devops-webapp"}' \
+          ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Send Slack Failure Notification
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ Build Failed for devops-webapp"}' \
+          ${{ secrets.SLACK_WEBHOOK }}
